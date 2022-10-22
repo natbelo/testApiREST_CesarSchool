@@ -50,4 +50,31 @@ public class Usuarios {
 
         return token;
     }
+
+    public void excluirUsuarioCarrinhoAssociado(String userToken, String userID){
+        given()
+                .pathParam("_id", userID)
+                .header("authorization",userToken)
+                .when()
+                .delete("/usuarios/{_id}")
+                .then()
+                .log().all()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .body("message",is("Não é permitido excluir usuário com carrinho cadastrado"));
+
+    }
+
+    public void excluirUsuario(String userID, String userToken){
+        given()
+                .pathParam("_id", userID)
+                .header("authorization",userToken)
+                .when()
+                .delete("/usuarios/{_id}")
+                .then()
+                .log().all()
+                .statusCode(HttpStatus.SC_OK)
+                .body("message",is("Registro excluído com sucesso"));
+    }
+
+
 }

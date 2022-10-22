@@ -18,6 +18,7 @@ public class AppTest {
 
     Usuarios usuarios = new Usuarios();
     Produtos produtos = new Produtos();
+    Carrinho carrinho = new Carrinho();
 
     String userName = faker.name().firstName();
     String userEmail = userName + "@qa.com.br";
@@ -168,83 +169,19 @@ public class AppTest {
         userID = usuarios.cadastrarUsuario(userName, userEmail);
         userToken = usuarios.autenticarUsuario(userEmail);
         productID = produtos.cadastrarProduto(userToken, productName);
-        cadastrarCarrinho();
-        excluirUsuarioCarrinhoAssociado();
-        excluirCarrinhoCancelando();
-        excluirProduto();
-        excluirUsuario();
+        carrinho.cadastrarCarrinho(userToken, productID);
+        usuarios.excluirUsuarioCarrinhoAssociado(userToken, userID);
+        carrinho.excluirCarrinhoCancelando(userToken);
+        produtos.excluirProduto(productID, userToken);
+        usuarios.excluirUsuario(userID, userToken);
     }
 
 
 
-    public void cadastrarCarrinho(){
-        given()
-                .header("authorization", userToken)
-                .body("{\n" +
-                        "  \"produtos\": [\n" +
-                        "    {\n" +
-                        "      \"idProduto\": \""+productID+"\",\n" +
-                        "      \"quantidade\": 1\n" +
-                        "    }\n" +
-                        "  ]\n" +
-                        "}")
-                .contentType(ContentType.JSON)
-        .when()
-                .post("/carrinhos")
-        .then()
-                .log().all()
-                .statusCode(HttpStatus.SC_CREATED)
-                .body("message", is("Cadastro realizado com sucesso"));
 
-    }
 
-    public void excluirUsuarioCarrinhoAssociado(){
-        given()
-                .pathParam("_id", userID)
-                .header("authorization",userToken)
-        .when()
-                .delete("/usuarios/{_id}")
-        .then()
-                .log().all()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body("message",is("Não é permitido excluir usuário com carrinho cadastrado"));
 
-    }
 
-    public void excluirCarrinhoCancelando(){
-        given()
-                .header("authorization", userToken)
-        .when()
-                .delete("/carrinhos/cancelar-compra")
-        .then()
-                .log().all()
-                .statusCode(HttpStatus.SC_OK)
-                .body("message", is("Registro excluído com sucesso. Estoque dos produtos reabastecido"));
-    }
-
-    public void excluirProduto(){
-        given()
-                .pathParam("_id", productID)
-                .header("authorization",userToken)
-        .when()
-                .delete("/produtos/{_id}")
-        .then()
-                .log().all()
-                .statusCode(HttpStatus.SC_OK)
-                .body("message",is("Registro excluído com sucesso"));
-    }
-
-    public void excluirUsuario(){
-        given()
-                .pathParam("_id", userID)
-                .header("authorization",userToken)
-        .when()
-                .delete("/usuarios/{_id}")
-        .then()
-                .log().all()
-                .statusCode(HttpStatus.SC_OK)
-                .body("message",is("Registro excluído com sucesso"));
-    }
 
 
 

@@ -30,4 +30,16 @@ public class Produtos {
 
         return produto;
     }
+
+    public void excluirProduto(String productID, String userToken){
+        given()
+                .pathParam("_id", productID)
+                .header("authorization",userToken)
+                .when()
+                .delete("/produtos/{_id}")
+                .then()
+                .log().all()
+                .statusCode(HttpStatus.SC_OK)
+                .body("message",is("Registro excluído com sucesso"));
+    }
 }
